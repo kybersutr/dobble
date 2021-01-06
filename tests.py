@@ -1,3 +1,4 @@
+from game_logic import *
 # Unit tests for game_logic
 
 def test1_generate():
