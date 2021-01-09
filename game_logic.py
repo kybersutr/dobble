@@ -93,8 +93,9 @@ class Player():
         for card in self.cards:
             screen.blit(card.image, self.card_coords[card.position])
 
-        points_text = points_font.render(f"points: {self.points}", True, pygame.Color("black"))
-        screen.blit(points_text, (self.points_coords[0] + 230/2 - points_text.get_width()/2, self.points_coords[1]))
+        if self.num != 4:
+            points_text = points_font.render(f"points: {self.points}", True, pygame.Color("black"))
+            screen.blit(points_text, (self.points_coords[0] + 230/2 - points_text.get_width()/2, self.points_coords[1]))
 
         if self.num != 4:
             for i in range(len(self.keys)):
