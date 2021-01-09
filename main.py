@@ -10,9 +10,6 @@ for img in os.listdir("images"):
     unused_images.append(image)
     random.shuffle(unused_images)
 
-def draw_game():
-    pass
-
 pygame.init()
 pygame.display.set_caption('Dobble')
 
@@ -54,8 +51,6 @@ while True:
         player.draw(screen)
     mid.draw(screen)
 
-
-    draw_game()
 
     pygame.display.flip()
     clock.tick(30)

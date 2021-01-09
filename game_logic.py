@@ -61,10 +61,9 @@ class Player():
         for card in self.cards:
             if card.shared_with == None:
                 used.append(card.image)
-            else:
+            elif card.shared_with != mid:
                 other_player = card.shared_with
                 for other_card in other_player.cards:
-                    print(other_card.shared_with)
                     if other_card.shared_with == self:
                         other_card.shared_with = None
 
@@ -72,6 +71,12 @@ class Player():
         for card in self.cards:
             if card.shared_with == self:
                 card.shared_with = None
+
+            elif card.shared_with != None:
+                other_player = card.shared_with
+                for other_card in other_player.cards:
+                    if other_card.shared_with == mid:
+                        other_card.shared_with = self
         return(used)
 
     def draw(self, screen):
@@ -143,6 +148,7 @@ def check_input(key, players, unused_images, mid):
                         generate_new_cards(players, unused_images, mid)
                         for i in recycle:
                             unused_images.append(i)
+
                         return None
                     else:
                         player.points -= 1
