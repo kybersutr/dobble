@@ -14,19 +14,28 @@ class Player():
         self.points = 0
         self.num = num
 
+        if num == 4:
+            self.name = "TABLE"
+        else:
+            self.name = f"PLAYER {num + 1}"
+
     def get_coords(self, width, height):
+        padding = 60
+
         if self.num == 0:
-            self.top_left = (10, 10)
+            self.top_left = (padding, padding)
         elif self.num == 1:
-            self.top_left = (width - 240, 10)
+            self.top_left = (width - 230 - padding, padding)
         elif self.num == 2:
-            self.top_left = (10, height - 270)
+            self.top_left = (padding, height - 260 - padding)
         elif self.num == 3:
-            self.top_left = (width - 240, height - 270)
+            self.top_left = (width - 230 - padding, height - 260 - padding)
         elif self.num == 4:
             self.top_left = (width/2 - (230/2), height/2 - (260/2))
 
         x, y = self.top_left[0], self.top_left[1]
+
+        self.points_coords = (self.top_left[0] , self.top_left[1] + 35)
 
         card0 = (x, y + 60)
         card1 = (x + 90, y + 60)
@@ -44,32 +53,55 @@ class Player():
         key5 = (x + 180, y + 210)
         self.key_coords = [key0, key1, key2, key3, key4, key5]
 
-    def take_cards(self):
+        if self.num == 4:
+            self.middle = (width/2, height/2)
+
+    def take_cards(self, mid):
+        used = []
+        for card in self.cards:
+            if card.shared_with == None:
+                used.append(card.image)
+            else:
+                other_player = card.shared_with
+                for other_card in other_player.cards:
+                    print(other_card.shared_with)
+                    if other_card.shared_with == self:
+                        other_card.shared_with = None
+
         self.cards = mid.cards
         for card in self.cards:
             if card.shared_with == self:
                 card.shared_with = None
+        return(used)
 
     def draw(self, screen):
-        player_font = pygame.font.SysFont(None, 50)
+        if self.num == 4:
+            pygame.draw.circle(screen, "white", self.middle, 350/2)
 
-        name = player_font.render(f'PLAYER {self.num + 1}', True, pygame.Color("black"))
-        screen.blit(name, self.top_left)
+        player_font = pygame.font.SysFont(None, 50)
+        key_font = pygame.font.SysFont(None, 40)
+        points_font = pygame.font.SysFont(None, 30)
+
+        name_text = player_font.render(self.name, True, pygame.Color("black"))
+        screen.blit(name_text, (self.top_left[0] + 230/2 - name_text.get_width()/2, self.top_left[1]))
 
         for card in self.cards:
             screen.blit(card.image, self.card_coords[card.position])
 
-        for i in range(len(self.keys)):
-            key_text = player_font.render(self.keys[i], True, pygame.Color("black"))
-            screen.blit(key_text, self.key_coords[i])
+        points_text = points_font.render(f"points: {self.points}", True, pygame.Color("black"))
+        screen.blit(points_text, (self.points_coords[0] + 230/2 - points_text.get_width()/2, self.points_coords[1]))
 
+        if self.num != 4:
+            for i in range(len(self.keys)):
+                key_text = key_font.render(pygame.key.name(self.keys[i]), True, pygame.Color("black"))
+                screen.blit(key_text, (self.key_coords[i][0] + 50/2 - key_text.get_width()/2, self.key_coords[i][1] - 50/2 + key_text.get_height()))
 
 
 mid = Player(None, 4)
 players = []
 unused_images = []
 
-def generate_new_cards(players, unused_images):
+def generate_new_cards(players, unused_images, mid):
     """Takes one card from every player, which is not shared with another player.
     The cards are then supplemented with others (with unused images) to make
     a total of 6."""
@@ -94,20 +126,23 @@ def generate_new_cards(players, unused_images):
         new_cards.append(Card(new_image, pos, None))
 
     mid.cards = new_cards
+    print(len(unused_images))
 
-def check_input(key):
+def check_input(key, players, unused_images, mid):
     """Checks if the key pressed is valid for some player. If it is and the card is shared with mid, player
     gets +1 point and card is taken, else player gets -1 point."""
 
-    print(f"input {key}")
     for player in players:
         if key in player.keys:
             pos = player.keys.index(key)
             for card in player.cards:
                 if card.position == pos:
-                    if card.shared_with == mid:
+                    if card.shared_with != None and card.shared_with.num == 4:
                         player.points += 1
-                        player.take_cards()
+                        recycle = player.take_cards(mid)
+                        generate_new_cards(players, unused_images, mid)
+                        for i in recycle:
+                            unused_images.append(i)
                         return None
                     else:
                         player.points -= 1
