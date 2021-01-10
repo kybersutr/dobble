@@ -3,8 +3,9 @@ import pygame, sys, os, random, math
 from game_logic import*
 from main import *
 from tests import *
+from menu import draw_button
 
-def game():
+def game(width, height, screen, clock, players, mid):
     unused_images = []
     for img in os.listdir("images"):
         image = pygame.image.load(os.path.join("images", img))
@@ -31,9 +32,12 @@ def game():
                     check_input(event.key, players, unused_images, mid)
 
         screen.fill(pygame.Color(198, 142, 212))
+
         for player in players:
             player.draw(screen)
         mid.draw(screen)
+
+        draw_button("MENU", (width/2 - 50, height - 60, 100, 50), screen)
 
         pygame.display.flip()
         clock.tick(30)

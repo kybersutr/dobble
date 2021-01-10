@@ -4,12 +4,13 @@ from game_logic import *
 from tests import *
 from game_loop import *
 
+from zapoctak.dobble.game_loop import game
+
 pygame.init()
 pygame.display.set_caption('Dobble')
 
 width = 1100
 height = 750
-
 
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
@@ -21,6 +22,6 @@ Three = Player([107, 108, 59, 44, 46, 47], 3)
 mid = Player(None, 4)
 players = [Zero, One, Two, Three]
 
-game()
+game(width, height, screen, clock, players, mid)
 
 

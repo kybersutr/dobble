@@ -132,7 +132,6 @@ def generate_new_cards(players, unused_images, mid):
         new_cards.append(Card(new_image, pos, None))
 
     mid.cards = new_cards
-    print(len(unused_images))
 
 def check_input(key, players, unused_images, mid):
     """Checks if the key pressed is valid for some player. If it is and the card is shared with mid, player
