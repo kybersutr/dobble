@@ -103,6 +103,22 @@ class Player():
                 screen.blit(key_text, (self.key_coords[i][0] + 50/2 - key_text.get_width()/2, self.key_coords[i][1] - 50/2 + key_text.get_height()))
 
 
+class Button():
+
+    def __init__(self, text, position):
+        self.text = text
+        self.position = position
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, "gray", self.position)
+
+        button_font = pygame.font.Font('freesansbold.ttf', int(self.position[3]/3))
+        button_surface = button_font.render(self.text, True, "black")
+        button_rect = button_surface.get_rect()
+        button_rect.center = (self.position[0] + 1 / 2 * self.position[2], self.position[1] + 1 / 2 * self.position[3])
+
+        screen.blit(button_surface, button_rect)
+
 mid = Player(None, 4)
 players = []
 unused_images = []

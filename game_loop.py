@@ -3,15 +3,8 @@ import pygame, sys, os, random, math
 from game_logic import*
 from main import *
 from tests import *
-from menu import draw_button
 
-def game(width, height, screen, clock, players, mid):
-    unused_images = []
-    for img in os.listdir("images"):
-        image = pygame.image.load(os.path.join("images", img))
-        image = pygame.transform.scale(image, (50, 50))
-        unused_images.append(image)
-        random.shuffle(unused_images)
+def game(width, height, screen, clock, players, mid, unused_images):
 
     for player in players:
         player.get_coords(width, height)
@@ -21,6 +14,8 @@ def game(width, height, screen, clock, players, mid):
 
     mid.get_coords(width, height)
     generate_new_cards(players, unused_images, mid)
+
+    menu_button = Button("MENU", (width/2 - 50, height - 120, 100, 50))
 
     # main game loop
     while True:
@@ -37,7 +32,7 @@ def game(width, height, screen, clock, players, mid):
             player.draw(screen)
         mid.draw(screen)
 
-        draw_button("MENU", (width/2 - 50, height - 60, 100, 50), screen)
+        menu_button.draw(screen)
 
         pygame.display.flip()
         clock.tick(30)

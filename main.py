@@ -3,6 +3,7 @@ import pygame, sys, os, random, math
 from game_logic import *
 from tests import *
 from game_loop import *
+from menu import *
 
 from zapoctak.dobble.game_loop import game
 
@@ -22,6 +23,14 @@ Three = Player([107, 108, 59, 44, 46, 47], 3)
 mid = Player(None, 4)
 players = [Zero, One, Two, Three]
 
-game(width, height, screen, clock, players, mid)
+unused_images = []
+for img in os.listdir("images"):
+    image = pygame.image.load(os.path.join("images", img))
+    image = pygame.transform.scale(image, (50, 50))
+    unused_images.append(image)
+    random.shuffle(unused_images)
+
+menu_loop(height, width, screen, clock, unused_images)
+game(width, height, screen, clock, players, mid, unused_images)
 
 
