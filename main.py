@@ -1,12 +1,11 @@
 import pygame, sys, os, random, math
 
 from game_logic import *
-from tests import *
 from game_loop import *
+from tests import *
 from menu import *
 
-from zapoctak.dobble.game_loop import game
-
+# Initialize window
 pygame.init()
 pygame.display.set_caption('Dobble')
 
@@ -23,14 +22,19 @@ Three = Player([107, 108, 59, 44, 46, 47], 3)
 mid = Player(None, 4)
 players = [Zero, One, Two, Three]
 
-unused_images = []
+# Initialize images
+images = []
 for img in os.listdir("images"):
     image = pygame.image.load(os.path.join("images", img))
     image = pygame.transform.scale(image, (50, 50))
-    unused_images.append(image)
-    random.shuffle(unused_images)
+    images.append(image)
+    random.shuffle(images)
 
-menu_loop(height, width, screen, clock, unused_images)
-game(width, height, screen, clock, players, mid, unused_images)
+# Load and start playing music
+pygame.mixer.music.load("vyhlaskatutu.mid")
+pygame.mixer.music.play(-1)
+
+# Go to menu
+menu_loop(width, height, screen, clock, images, players, mid)
 
 

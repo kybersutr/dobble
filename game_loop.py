@@ -1,10 +1,20 @@
 import pygame, sys, os, random, math
+from game_logic import *
+import menu
 
-from game_logic import*
-from main import *
-from tests import *
+def reset(players):
+    """Clears the game state after last game"""
+    for player in players:
+        player.cards = []
+        player.points = 0
 
-def game(width, height, screen, clock, players, mid, unused_images):
+def game(width, height, screen, clock, players, mid, images, rounds):
+
+    countdown = rounds
+
+    unused_images = [] # dont modify the original list
+    for image in images:
+        unused_images.append(image)
 
     for player in players:
         player.get_coords(width, height)
@@ -17,16 +27,32 @@ def game(width, height, screen, clock, players, mid, unused_images):
 
     menu_button = Button("MENU", (width/2 - 50, height - 120, 100, 50))
 
+    rounds_font = pygame.font.SysFont(None, 50)
+
     # main game loop
     while True:
+        if countdown <= 0:
+            winning_screen(width, height, screen, clock, players, images, rounds)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
             else:
                 if event.type == pygame.KEYDOWN:
-                    check_input(event.key, players, unused_images, mid)
+                    if check_input(event.key, players, unused_images, mid):
+                        countdown -= 1
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    if menu_button.check_clicked(pos):
+                        menu.menu_loop(width, height, screen, clock, images, players, mid, rounds)
 
         screen.fill(pygame.Color(198, 142, 212))
+
+        if countdown != 1:
+            rounds_text = rounds_font.render(f"{countdown} ROUNDS TO GO!", True, pygame.Color("black"))
+        else:
+            rounds_text = rounds_font.render("LAST ROUND!", True, pygame.Color("black"))
+        screen.blit(rounds_text, (width / 2 - rounds_text.get_width() / 2, 120))
 
         for player in players:
             player.draw(screen)
@@ -35,4 +61,75 @@ def game(width, height, screen, clock, players, mid, unused_images):
         menu_button.draw(screen)
 
         pygame.display.flip()
+        clock.tick(30)
+
+def winning_screen(width, height, screen, clock, players, images, rounds):
+
+    menu_button = Button("MENU", (width / 2 - 50, height - 120, 100, 50))
+
+    max_points = float("-inf")
+    winners = []
+    for player in players:
+        if player.points > max_points:
+            max_points = player.points
+            winners = [player]
+
+        elif player.points == max_points:
+            winners.append(player)
+
+    if len(winners) > 1:
+        to_print = ["It's a draw between"]
+        second_line = ""
+        for winner in winners:
+            second_line += f" {winner.name},"
+        second_line = second_line[:-1] + "!"
+        to_print.append(second_line)
+    else:
+        to_print = [f"The winner is {winners[0].name} with {max_points} points!"]
+
+    win_font = pygame.font.SysFont(None, 70)
+    win_texts = []
+    for i in to_print:
+        win_texts.append(win_font.render(i, True, pygame.Color("black")))
+
+
+    slower_movement_counter = 0 # Used not to redraw the screen every loop iteration
+    menu_button = Button("MENU", (width / 2 - 50, height - 120, 100, 50))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                if menu_button.check_clicked(pos):
+                    menu.menu_loop(width, height, screen, clock, images, players, mid, rounds)
+
+
+        if slower_movement_counter == 0:
+            slower_movement_counter = 3
+            screen.fill(pygame.Color(198, 142, 212))
+
+            menu_button.draw(screen)
+
+            for w in win_texts:
+                screen.blit(w, (width / 2 - w.get_width() / 2, 210))
+
+
+            for i in range(15):
+                coord_x = random.randint(0, width)
+                coord_y = random.randint(0, height)
+
+                # Recalculate coordinates if the picture would cover the buttons
+                while coord_x >= (width/2 - 200) and coord_x < (width/2 + 150) \
+                        and (coord_y > 100) and (coord_y < (height - 250) * 3/3 + 100):
+                    coord_x = random.randint(0, width)
+                    coord_y = random.randint(0, height)
+
+                screen.blit(images[random.randint(0, len(images)-1)], (coord_x, coord_y))
+
+            pygame.display.flip()
+
+        else:
+            slower_movement_counter -= 1
         clock.tick(30)

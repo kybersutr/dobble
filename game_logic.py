@@ -107,10 +107,11 @@ class Button():
 
     def __init__(self, text, position):
         self.text = text
-        self.position = position
+        self.position = position # (x, y, width, height)
+        self.colour = "gray"
 
     def draw(self, screen):
-        pygame.draw.rect(screen, "gray", self.position)
+        pygame.draw.rect(screen, self.colour, self.position)
 
         button_font = pygame.font.Font('freesansbold.ttf', int(self.position[3]/3))
         button_surface = button_font.render(self.text, True, "black")
@@ -118,6 +119,17 @@ class Button():
         button_rect.center = (self.position[0] + 1 / 2 * self.position[2], self.position[1] + 1 / 2 * self.position[3])
 
         screen.blit(button_surface, button_rect)
+
+    def check_clicked(self, pos):
+        if pos[0] >= self.position[0] and pos[0] <= self.position[0] + self.position[2]:
+            if pos[1] >= self.position[1] and pos[1] <= self.position[1] + self.position[3]:
+                self.colour = "darkgray"
+                return True
+        else:
+            self.colour = "gray"
+
+        return False
+
 
 mid = Player(None, 4)
 players = []
@@ -165,7 +177,7 @@ def check_input(key, players, unused_images, mid):
                         for i in recycle:
                             unused_images.append(i)
 
-                        return None
+                        return True
                     else:
                         player.points -= 1
-                        return None
+                        return False
