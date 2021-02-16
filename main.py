@@ -20,7 +20,11 @@ One = Player([116, 121, 117, 103, 104, 106], 1)
 Two = Player([56, 57, 48, 105, 111, 112], 2)
 Three = Player([107, 108, 59, 44, 46, 47], 3)
 mid = Player(None, 4)
-players = [Zero, One, Two, Three]
+default_players = [Zero, One, Two, Three]
+players = []
+for player in default_players:
+    player.get_coords(width, height)
+    players.append(player)
 
 # Initialize images
 images = []
@@ -31,10 +35,10 @@ for img in os.listdir("images"):
     random.shuffle(images)
 
 # Load and start playing music
-pygame.mixer.music.load("vyhlaskatutu.mid")
+pygame.mixer.music.load("muzik.mid")
 pygame.mixer.music.play(-1)
 
 # Go to menu
-menu_loop(width, height, screen, clock, images, players, mid)
+menu_loop(width, height, screen, clock, images, players, mid, default_players)
 
 

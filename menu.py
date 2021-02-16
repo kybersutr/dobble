@@ -3,7 +3,7 @@ import game_loop
 from game_logic import *
 
 
-def menu_loop(width, height, screen, clock, images, players, mid, rounds = 20):
+def menu_loop(width, height, screen, clock, images, players, mid, default_players, rounds = 20):
     start_button = Button("START GAME", (width/2 - 150, (height - 250) * 1/3, 300, 100))
     settings_button = Button("SETTINGS", (width/2 - 150, (height - 250) * 2/3, 300, 100))
     rules_button = Button("RULES", (width/2 - 150, (height - 250) * 3/3, 300, 100))
@@ -22,9 +22,10 @@ def menu_loop(width, height, screen, clock, images, players, mid, rounds = 20):
                 if start_button.check_clicked(pos):
                     game_loop.reset(players)
                     game_loop.game(width, height, screen, clock, players, mid, images, rounds)
+                    start_button.colour = "gray"
 
                 elif settings_button.check_clicked(pos):
-                    players, rounds = settings_loop(width, height, screen, clock, players, rounds)
+                    players, rounds, default_players = settings_loop(width, height, screen, clock, players, rounds, default_players)
                     settings_button.colour = "gray"
 
                 elif rules_button.check_clicked(pos):
@@ -57,7 +58,7 @@ def menu_loop(width, height, screen, clock, images, players, mid, rounds = 20):
             slower_movement_counter -= 1
         clock.tick(30)
 
-def settings_loop(width, height, screen, clock, players, rounds):
+def settings_loop(width, height, screen, clock, players, rounds, default_players):
 
     # Number of players buttons
     players_buttons = []
@@ -93,38 +94,33 @@ def settings_loop(width, height, screen, clock, players, rounds):
                 if event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     if menu_button.check_clicked(pos):
-                        return players, rounds
+                        return players, rounds, default_players
 
                     if players_buttons[0].check_clicked(pos):
-                        Zero = Player([113, 119, 101, 97, 115, 100], 0)
-                        One = Player([116, 121, 117, 103, 104, 106], 1)
-                        players = [Zero, One]
-                    elif players_buttons[1].check_clicked(pos):
-                        Zero = Player([113, 119, 101, 97, 115, 100], 0)
-                        One = Player([116, 121, 117, 103, 104, 106], 1)
-                        Two = Player([56, 57, 48, 105, 111, 112], 2)
-                        players = [Zero, One, Two]
-                    elif players_buttons[2].check_clicked(pos):
-                        Zero = Player([113, 119, 101, 97, 115, 100], 0)
-                        One = Player([116, 121, 117, 103, 104, 106], 1)
-                        Two = Player([56, 57, 48, 105, 111, 112], 2)
-                        Three = Player([107, 108, 59, 44, 46, 47], 3)
-                        players = [Zero, One, Two, Three]
+                        players = [default_players[0], default_players[1]]
+                    if players_buttons[1].check_clicked(pos):
+                        players = [default_players[0], default_players[1], default_players[2]]
+                    if players_buttons[2].check_clicked(pos):
+                        players = [default_players[0], default_players[1], default_players[2], default_players[3]]
+
+                    if controls_button.check_clicked(pos):
+                        controls_loop(width, height, screen, clock, default_players)
+                        controls_button.colour = "gray"
 
                     if music_buttons[0].check_clicked(pos):
-                        pygame.mixer.music.play()
-                    elif music_buttons[1].check_clicked(pos):
+                        pygame.mixer.music.play(-1)
+                    if music_buttons[1].check_clicked(pos):
                         pygame.mixer.music.stop()
 
                     if rounds_buttons[0].check_clicked(pos):
                         rounds = 5
-                    elif rounds_buttons[1].check_clicked(pos):
+                    if rounds_buttons[1].check_clicked(pos):
                         rounds = 10
-                    elif rounds_buttons[2].check_clicked(pos):
+                    if rounds_buttons[2].check_clicked(pos):
                         rounds = 20
-                    elif rounds_buttons[3].check_clicked(pos):
+                    if rounds_buttons[3].check_clicked(pos):
                         rounds = 30
-                    elif rounds_buttons[4].check_clicked(pos):
+                    if rounds_buttons[4].check_clicked(pos):
                         rounds = 50
 
 
@@ -154,9 +150,95 @@ def settings_loop(width, height, screen, clock, players, rounds):
         pygame.display.flip()
         clock.tick(30)
 
+def controls_loop(width, height, screen, clock, default_players):
+    for player in default_players:
+        player.cards = []
+        player.points = 0
+
+    settings_button = Button("SETTINGS", (width/2 - 50, height - 120, 100, 50))
+
+    controls_buttons = []
+    for player in default_players:
+        controls = []
+        for key in player.key_coords:
+            controls.append(Button("", (key[0], key[1] - 10, 50, 50)))
+        controls_buttons.append(controls)
+
+
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            else:
+                if event.type == pygame.MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    if settings_button.check_clicked(pos):
+                        return None
+                    for player_num in range(4):
+                        for i in range(6):
+                            if controls_buttons[player_num][i].check_clicked(pos):
+                                controls_buttons[player_num][i].draw(screen) # Show empty spot instead of player key
+                                pygame.display.flip()
+                                end = False
+                                while end == False:
+                                    # Wait for user to press a key
+                                    for new_event in pygame.event.get():
+                                        if event.type == pygame.QUIT:
+                                            sys.exit()
+                                        elif new_event.type == pygame.KEYDOWN:
+                                            controls_buttons[player_num][i].colour = "gray"
+                                            new_key = new_event.key
+                                            end = True
+                                        elif new_event.type == pygame.MOUSEBUTTONUP:
+                                            controls_buttons[player_num][i].colour = "gray"
+                                            end = True
+                                            break
+                                        else:
+                                            continue
+                                        for player in default_players:
+                                            if new_key in player.keys:
+                                                break
+                                        else:
+                                            default_players[player_num].keys[i] = new_key
+
+
+
+        screen.fill(pygame.Color(198, 142, 212))
+
+        for player_buttons in controls_buttons:
+            for i in range(6):
+                player_buttons[i].draw(screen)
+
+        for player in default_players:
+            player.draw(screen, False)
+
+        settings_button.draw(screen)
+
+        show_instructions(width, height, screen)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+def show_instructions(width, height, screen):
+    instructions_font = pygame.font.SysFont(None, 40)
+    instructions_text1 = instructions_font.render("Click the button", True,
+                                                  pygame.Color("black"))
+    instructions_text2 = instructions_font.render("you want to change", True,
+                                                  pygame.Color("black"))
+    instructions_text3 = instructions_font.render("and press the new key.", True,
+                                                  pygame.Color("black"))
+    instructions_text4 = instructions_font.render("Two different players", True,
+                                                  pygame.Color("black"))
+    instructions_text5 = instructions_font.render("cannot share a key.", True,
+                                                  pygame.Color("black"))
+    screen.blit(instructions_text1, (width / 2 - instructions_text1.get_width() / 2, height/2 - 150))
+    screen.blit(instructions_text2, (width / 2 - instructions_text2.get_width() / 2, height/2 - 100))
+    screen.blit(instructions_text3, (width / 2 - instructions_text3.get_width() / 2, height/2 - 50))
+    screen.blit(instructions_text4, (width / 2 - instructions_text4.get_width() / 2, height/2 + 40))
+    screen.blit(instructions_text5, (width / 2 - instructions_text5.get_width() / 2, height/2 + 90))
+
 def rules_loop(width, height, screen, clock):
-
-
 
     menu_button = Button("MENU", (width/2 - 50, height - 120, 100, 50))
 

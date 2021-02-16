@@ -33,6 +33,7 @@ def game(width, height, screen, clock, players, mid, images, rounds):
     while True:
         if countdown <= 0:
             winning_screen(width, height, screen, clock, players, images, rounds)
+            return None
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -44,7 +45,7 @@ def game(width, height, screen, clock, players, mid, images, rounds):
                 elif event.type == pygame.MOUSEBUTTONUP:
                     pos = pygame.mouse.get_pos()
                     if menu_button.check_clicked(pos):
-                        menu.menu_loop(width, height, screen, clock, images, players, mid, rounds)
+                        return None
 
         screen.fill(pygame.Color(198, 142, 212))
 
@@ -85,7 +86,10 @@ def winning_screen(width, height, screen, clock, players, images, rounds):
         second_line = second_line[:-1] + "!"
         to_print.append(second_line)
     else:
-        to_print = [f"The winner is {winners[0].name} with {max_points} points!"]
+        if max_points != 1:
+            to_print = ["The winner is",  f"{winners[0].name} with {max_points} points!"]
+        else:
+            to_print = ["The winner is", f"{winners[0].name} with 1 point!"]
 
     win_font = pygame.font.SysFont(None, 70)
     win_texts = []
@@ -103,7 +107,7 @@ def winning_screen(width, height, screen, clock, players, images, rounds):
             elif event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 if menu_button.check_clicked(pos):
-                    menu.menu_loop(width, height, screen, clock, images, players, mid, rounds)
+                    return None
 
 
         if slower_movement_counter == 0:
@@ -112,17 +116,21 @@ def winning_screen(width, height, screen, clock, players, images, rounds):
 
             menu_button.draw(screen)
 
-            for w in win_texts:
-                screen.blit(w, (width / 2 - w.get_width() / 2, 210))
+            screen.blit(win_texts[0], (width / 2 - win_texts[0].get_width() / 2, 210))
+            screen.blit(win_texts[1], (width / 2 - win_texts[1].get_width() / 2, 300))
 
 
             for i in range(15):
                 coord_x = random.randint(0, width)
                 coord_y = random.randint(0, height)
 
-                # Recalculate coordinates if the picture would cover the buttons
-                while coord_x >= (width/2 - 200) and coord_x < (width/2 + 150) \
-                        and (coord_y > 100) and (coord_y < (height - 250) * 3/3 + 100):
+                # Recalculate coordinates if the picture would cover the upper text, lower text or menu button
+                while (((coord_x >= (width / 2 - (win_texts[0].get_width() / 2 + 50))) and (coord_x < (width / 2 + win_texts[0].get_width() / 2)) \
+                        and (coord_y > 210 - 50) and (coord_y < 300)) \
+                    or ((coord_x >= (width / 2 - (win_texts[1].get_width() / 2 + 50))) and (coord_x < (width / 2 + win_texts[1].get_width() / 2)) \
+                        and (coord_y > 300 - 50) and (coord_y < 370)) \
+                    or ((coord_x >= (menu_button.position[0] - 50)) and coord_x < ((menu_button.position[0] + menu_button.position[2])) \
+                        and (coord_y > menu_button.position[1] - 50) and (coord_y < menu_button.position[1] + menu_button.position[3]))):
                     coord_x = random.randint(0, width)
                     coord_y = random.randint(0, height)
 

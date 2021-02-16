@@ -79,7 +79,7 @@ class Player():
                         other_card.shared_with = self
         return(used)
 
-    def draw(self, screen):
+    def draw(self, screen, with_points = True):
         if self.num == 4:
             pygame.draw.circle(screen, "white", self.middle, 350/2)
 
@@ -93,7 +93,7 @@ class Player():
         for card in self.cards:
             screen.blit(card.image, self.card_coords[card.position])
 
-        if self.num != 4:
+        if self.num != 4 and with_points == True:
             points_text = points_font.render(f"points: {self.points}", True, pygame.Color("black"))
             screen.blit(points_text, (self.points_coords[0] + 230/2 - points_text.get_width()/2, self.points_coords[1]))
 
@@ -111,6 +111,8 @@ class Button():
         self.colour = "gray"
 
     def draw(self, screen):
+        pygame.draw.rect(screen, "black",
+                         (self.position[0] - 3, self.position[1] - 3, self.position[2] + 6, self.position[3] + 6))
         pygame.draw.rect(screen, self.colour, self.position)
 
         button_font = pygame.font.Font('freesansbold.ttf', int(self.position[3]/3))
