@@ -1,3 +1,10 @@
+"""
+Hra Dobble
+Barbora Dohnalová
+zápočtový program do předmětu Programování I
+zimní semestr 2020/2021
+"""
+
 import pygame, sys, os, random, math
 
 from game_logic import *

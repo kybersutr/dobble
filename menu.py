@@ -240,7 +240,32 @@ def show_instructions(width, height, screen):
 
 def rules_loop(width, height, screen, clock):
 
+    tutorial_images = []
+    for img in os.listdir("tutorial"):
+        tutorial_img = pygame.image.load(os.path.join("tutorial", img))
+        tutorial_img = pygame.transform.smoothscale(tutorial_img, (width, height))
+        tutorial_images.append(tutorial_img)
+
+    text_font = pygame.font.SysFont(None, 40)
+    tutorial_texts = []
+    tutorial_texts.append((text_font.render("The goal of this game is to find", True, pygame.Color("black")),
+                           text_font.render("the picture you share with the table.", True, pygame.Color("black"))))
+    tutorial_texts.append((text_font.render("Press the key", True, pygame.Color("black")),
+                           text_font.render("written under the shared picture.", True, pygame.Color("black"))))
+    tutorial_texts.append((text_font.render("If you press the right key,", True, pygame.Color("black")),
+                           text_font.render("you get a point.", True, pygame.Color("black"))))
+    tutorial_texts.append((text_font.render("But be careful!", True, pygame.Color("black")),
+                           text_font.render("If you press a wrong key...", True, pygame.Color("black"))))
+    tutorial_texts.append((text_font.render("...", True, pygame.Color("black")),
+                           text_font.render("You lose a point.", True, pygame.Color("black"))))
+    tutorial_texts.append((text_font.render("Player with the most points wins.", True, pygame.Color("black")),
+                           text_font.render("Have fun!", True, pygame.Color("black"))))
+
+
     menu_button = Button("MENU", (width/2 - 50, height - 120, 100, 50))
+    next_button = Button(">", (width/2 + 70, height - 120, 50, 50))
+    previous_button = Button("<", (width/2 - 120, height - 120, 50, 50))
+    i = 0
 
     while True:
         for event in pygame.event.get():
@@ -251,10 +276,27 @@ def rules_loop(width, height, screen, clock):
                     pos = pygame.mouse.get_pos()
                     if menu_button.check_clicked(pos):
                         return None
+                    if next_button.check_clicked(pos):
+                        if i < len(tutorial_images) - 1:
+                            i += 1
+                    if previous_button.check_clicked(pos):
+                        if i > 0:
+                            i -= 1
 
         screen.fill(pygame.Color(198, 142, 212))
+        screen.blit(tutorial_images[i], (0,0))
+
+        text = tutorial_texts[i]
+        screen.blit(text[0], (width/2 - text[0].get_width()/2, 80))
+        screen.blit(text[1], (width / 2 - text[1].get_width() / 2, 130))
+
 
         menu_button.draw(screen)
+        if i < len(tutorial_images) - 1:
+            next_button.draw(screen)
+        if i > 0:
+            previous_button.draw(screen)
 
         pygame.display.flip()
+
         clock.tick(30)

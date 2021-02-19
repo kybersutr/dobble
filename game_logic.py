@@ -133,10 +133,6 @@ class Button():
         return False
 
 
-mid = Player(None, 4)
-players = []
-unused_images = []
-
 def generate_new_cards(players, unused_images, mid):
     """Takes one card from every player, which is not shared with another player.
     The cards are then supplemented with others (with unused images) to make
