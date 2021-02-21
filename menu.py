@@ -4,13 +4,17 @@ from game_logic import *
 
 
 def menu_loop(width, height, screen, clock, images, players, mid, default_players, rounds = 20):
+    """Draw menu with buttons. players and rounds are in default mode (4 players, 20 rounds)
+    unless the user changes them in settings"""
+
     start_button = Button("START GAME", (width/2 - 150, (height - 250) * 1/3, 300, 100))
     settings_button = Button("SETTINGS", (width/2 - 150, (height - 250) * 2/3, 300, 100))
     rules_button = Button("RULES", (width/2 - 150, (height - 250) * 3/3, 300, 100))
 
     buttons = [start_button, settings_button, rules_button]
 
-    slower_movement_counter = 0 # Used not to redraw the screen every loop iteration
+    slower_movement_counter = 0
+    # Used not to redraw the screen every loop iteration (because of the moving pictures in background)
 
     while True:
         for event in pygame.event.get():
@@ -20,27 +24,29 @@ def menu_loop(width, height, screen, clock, images, players, mid, default_player
                 pos = pygame.mouse.get_pos()
 
                 if start_button.check_clicked(pos):
-                    game_loop.reset(players)
+                    game_loop.reset(players) # Clear game state from last game
                     game_loop.game(width, height, screen, clock, players, mid, images, rounds)
-                    start_button.colour = "gray"
+                    start_button.colour = "gray" # So that it does not appear pressed when user returns to menu
 
                 elif settings_button.check_clicked(pos):
-                    players, rounds, default_players = settings_loop(width, height, screen, clock, players, rounds, default_players)
+                    # Lets the user set number of players, number of rounds and player controls
+                    players, rounds, default_players = \
+                        settings_loop(width, height, screen, clock, players, rounds, default_players)
                     settings_button.colour = "gray"
 
                 elif rules_button.check_clicked(pos):
                     rules_loop(width, height, screen, clock)
                     rules_button.colour = "gray"
 
-        if slower_movement_counter == 0:
+        if slower_movement_counter == 0: # Redraw the screen every four iterations
             slower_movement_counter = 3
             screen.fill(pygame.Color(198, 142, 212))
 
             for button in buttons:
                 button.draw(screen)
 
-
             for i in range(15):
+                # Get random coordinates of the images in the background
                 coord_x = random.randint(0, width)
                 coord_y = random.randint(0, height)
 
@@ -59,6 +65,8 @@ def menu_loop(width, height, screen, clock, images, players, mid, default_player
         clock.tick(30)
 
 def settings_loop(width, height, screen, clock, players, rounds, default_players):
+    """Lets user chose the number of players, player controls, number of rounds and turn the music on or off.
+    Returns list of players, number of rounds and default players (with new controls)"""
 
     # Number of players buttons
     players_buttons = []
@@ -96,6 +104,7 @@ def settings_loop(width, height, screen, clock, players, rounds, default_players
                     if menu_button.check_clicked(pos):
                         return players, rounds, default_players
 
+                    # Choose number of players
                     if players_buttons[0].check_clicked(pos):
                         players = [default_players[0], default_players[1]]
                     if players_buttons[1].check_clicked(pos):
@@ -103,15 +112,18 @@ def settings_loop(width, height, screen, clock, players, rounds, default_players
                     if players_buttons[2].check_clicked(pos):
                         players = [default_players[0], default_players[1], default_players[2], default_players[3]]
 
+                    # Get to the loop for choosing player controls
                     if controls_button.check_clicked(pos):
                         controls_loop(width, height, screen, clock, default_players)
                         controls_button.colour = "gray"
 
+                    # Turn music on or off
                     if music_buttons[0].check_clicked(pos):
                         pygame.mixer.music.play(-1)
                     if music_buttons[1].check_clicked(pos):
                         pygame.mixer.music.stop()
 
+                    # Choose number of rounds
                     if rounds_buttons[0].check_clicked(pos):
                         rounds = 5
                     if rounds_buttons[1].check_clicked(pos):
@@ -151,12 +163,14 @@ def settings_loop(width, height, screen, clock, players, rounds, default_players
         clock.tick(30)
 
 def controls_loop(width, height, screen, clock, default_players):
+    """Lets user choose player controls"""
+
     for player in default_players:
-        player.cards = []
-        player.points = 0
+        player.cards = [] # Used not to draw any pictures on the screen
 
     settings_button = Button("SETTINGS", (width/2 - 50, height - 120, 100, 50))
 
+    # six control keys buttons for each player (two-dimensional list)
     controls_buttons = []
     for player in default_players:
         controls = []
@@ -166,7 +180,6 @@ def controls_loop(width, height, screen, clock, default_players):
 
 
     while True:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -175,11 +188,14 @@ def controls_loop(width, height, screen, clock, default_players):
                     pos = pygame.mouse.get_pos()
                     if settings_button.check_clicked(pos):
                         return None
+
                     for player_num in range(4):
+                        # Check if each button of each player is clicked
                         for i in range(6):
                             if controls_buttons[player_num][i].check_clicked(pos):
                                 controls_buttons[player_num][i].draw(screen) # Show empty spot instead of player key
                                 pygame.display.flip()
+
                                 end = False
                                 while end == False:
                                     # Wait for user to press a key
@@ -189,20 +205,21 @@ def controls_loop(width, height, screen, clock, default_players):
                                         elif new_event.type == pygame.KEYDOWN:
                                             controls_buttons[player_num][i].colour = "gray"
                                             new_key = new_event.key
-                                            end = True
+                                            end = True # User pressed new key
                                         elif new_event.type == pygame.MOUSEBUTTONUP:
+                                            # User clicked elsewhere, break from loop
                                             controls_buttons[player_num][i].colour = "gray"
                                             end = True
                                             break
                                         else:
                                             continue
+
+                                        # Check if the new key does not belong to other player, if not change the button
                                         for player in default_players:
                                             if new_key in player.keys:
                                                 break
                                         else:
                                             default_players[player_num].keys[i] = new_key
-
-
 
         screen.fill(pygame.Color(198, 142, 212))
 
@@ -211,7 +228,7 @@ def controls_loop(width, height, screen, clock, default_players):
                 player_buttons[i].draw(screen)
 
         for player in default_players:
-            player.draw(screen, False)
+            player.draw(screen, False) # False -> do not show points
 
         settings_button.draw(screen)
 
@@ -221,6 +238,8 @@ def controls_loop(width, height, screen, clock, default_players):
         clock.tick(30)
 
 def show_instructions(width, height, screen):
+    """Used in controls_loop to show instructions in the middle"""
+
     instructions_font = pygame.font.SysFont(None, 40)
     instructions_text1 = instructions_font.render("Click the button", True,
                                                   pygame.Color("black"))
@@ -239,6 +258,7 @@ def show_instructions(width, height, screen):
     screen.blit(instructions_text5, (width / 2 - instructions_text5.get_width() / 2, height/2 + 90))
 
 def rules_loop(width, height, screen, clock):
+    """Show tutorial. Tutorial is created from images of the game screen."""
 
     tutorial_images = []
     for img in os.listdir("tutorial"):
@@ -265,7 +285,7 @@ def rules_loop(width, height, screen, clock):
     menu_button = Button("MENU", (width/2 - 50, height - 120, 100, 50))
     next_button = Button(">", (width/2 + 70, height - 120, 50, 50))
     previous_button = Button("<", (width/2 - 120, height - 120, 50, 50))
-    i = 0
+    i = 0 # counts which page of the tutorial is the user currently on
 
     while True:
         for event in pygame.event.get():
@@ -277,9 +297,11 @@ def rules_loop(width, height, screen, clock):
                     if menu_button.check_clicked(pos):
                         return None
                     if next_button.check_clicked(pos):
+                        # if user is on the last page, do not show the "next" button
                         if i < len(tutorial_images) - 1:
                             i += 1
                     if previous_button.check_clicked(pos):
+                        # if user is on the first page, do not show the "previous" button
                         if i > 0:
                             i -= 1
 
@@ -293,8 +315,10 @@ def rules_loop(width, height, screen, clock):
 
         menu_button.draw(screen)
         if i < len(tutorial_images) - 1:
+            # if user is on the last page, do not show the "next" button
             next_button.draw(screen)
         if i > 0:
+            # if user is on the first page, do not show the "previous" button
             previous_button.draw(screen)
 
         pygame.display.flip()

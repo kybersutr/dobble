@@ -14,7 +14,7 @@ class Player():
         self.points = 0
         self.num = num
 
-        if num == 4:
+        if num == 4: # Four players, the fifth player is mid
             self.name = "TABLE"
         else:
             self.name = f"PLAYER {num + 1}"
@@ -22,6 +22,7 @@ class Player():
     def get_coords(self, width, height):
         padding = 60
 
+        # Get self top left coordinate according to player number
         if self.num == 0:
             self.top_left = (padding, padding)
         elif self.num == 1:
@@ -35,8 +36,10 @@ class Player():
 
         x, y = self.top_left[0], self.top_left[1]
 
+        # Get coordinates of the "POINTS" text
         self.points_coords = (self.top_left[0] , self.top_left[1] + 35)
 
+        # Get positions of the cards and keys, relative to top left corner of the player
         card0 = (x, y + 60)
         card1 = (x + 90, y + 60)
         card2 = (x + 180, y + 60)
@@ -53,15 +56,20 @@ class Player():
         key5 = (x + 180, y + 210)
         self.key_coords = [key0, key1, key2, key3, key4, key5]
 
+        # get coordinates of the circle drawn around TABLE
         if self.num == 4:
             self.middle = (width/2, height/2)
 
     def take_cards(self, mid):
-        used = []
+        """Delete players cards, return the images (in the 'used' list) back to 'unused_images' and assign cards
+        previously in the middle to the player"""
+
+        used = [] # Images to be returned to 'unused_images'
         for card in self.cards:
             if card.shared_with == None:
                 used.append(card.image)
             elif card.shared_with != mid:
+                # Find the card between the other player's cards and remove the reference
                 other_player = card.shared_with
                 for other_card in other_player.cards:
                     if other_card.shared_with == self:
@@ -69,9 +77,11 @@ class Player():
 
         self.cards = mid.cards
         for card in self.cards:
+            # Remove the reference to self
             if card.shared_with == self:
                 card.shared_with = None
 
+            # Update other player's reference from mid to self
             elif card.shared_with != None:
                 other_player = card.shared_with
                 for other_card in other_player.cards:
@@ -80,7 +90,7 @@ class Player():
         return(used)
 
     def draw(self, screen, with_points = True):
-        if self.num == 4:
+        if self.num == 4: # draw a circle around TABLE
             pygame.draw.circle(screen, "white", self.middle, 350/2)
 
         player_font = pygame.font.SysFont(None, 50)
@@ -94,6 +104,7 @@ class Player():
             screen.blit(card.image, self.card_coords[card.position])
 
         if self.num != 4 and with_points == True:
+            # with_points variable used so that points are not drawn in settings
             points_text = points_font.render(f"points: {self.points}", True, pygame.Color("black"))
             screen.blit(points_text, (self.points_coords[0] + 230/2 - points_text.get_width()/2, self.points_coords[1]))
 
@@ -143,6 +154,7 @@ def generate_new_cards(players, unused_images, mid):
     random.shuffle(positions)
     random.shuffle(unused_images)
 
+    # Find a non-shared card from each player
     for player in players:
         random.shuffle(player.cards)
         for card in player.cards:
@@ -152,6 +164,7 @@ def generate_new_cards(players, unused_images, mid):
                 new_cards.append(Card(card.image, pos, player))
                 break
 
+    # Supplement cards with unused images
     for i in range(len(positions)):
         new_image = unused_images.pop()
         pos = positions.pop()

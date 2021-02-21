@@ -22,6 +22,7 @@ height = 750
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 
+# Create default players
 Zero = Player([113, 119, 101, 97, 115, 100], 0)
 One = Player([116, 121, 117, 103, 104, 106], 1)
 Two = Player([56, 57, 48, 105, 111, 112], 2)
