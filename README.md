@@ -29,7 +29,7 @@ Pokaždé, když hráč vezme kartu uprostřed, vygeneruje se nová prostřední
 
 Funkce `check_input` má za úkol zjistit, jestli právě stisknutá klávesa patří nějakému hráči. Pomocí for cyklu prochází všechny karty všech hráčů a zjišťuje, jestli jsou spojené s právě stisknutou klávesou. Pokud ano, podívá se, zda je tato karta sdílená s prostředkem. Pokud ano, hráč získává bod, v opačném případě bod ztrácí.
 
-Pokud hráč stiskl správnou klávesu, přichází na řadu metoda `take_cards` třídy `Players`. Ta má kromě předání karty z prostředka za úkol updatovat odkazy `shared_with` (pomocí for cyklu přes všechny hráče) a vrátit již nepoužívané obrázky zpět do seznamu `unused_images` (ty, u jejichž karet je `shared_with == None`).
+Pokud hráč stiskl správnou klávesu, přichází na řadu metoda `take_cards` třídy `Player`. Ta má kromě předání karty z prostředka za úkol updatovat odkazy `shared_with` (pomocí for cyklu přes všechny hráče) a vrátit již nepoužívané obrázky zpět do seznamu `unused_images` (ty, u jejichž karet je `shared_with == None`).
 
 ### Počet kol
 
