@@ -43,7 +43,7 @@ for img in os.listdir("images"):
     random.shuffle(images)
 
 # Load and start playing music
-pygame.mixer.music.load("muzik.mid")
+pygame.mixer.music.load("music.mid")
 pygame.mixer.music.play(-1)
 
 # Go to menu
